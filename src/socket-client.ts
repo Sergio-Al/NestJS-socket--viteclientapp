@@ -1,4 +1,7 @@
 import { Manager, Socket } from "socket.io-client";
+
+let socket: Socket;
+
 export const connectToServer = (token: string) => {
   const manager = new Manager("http://localhost:3000/socket.io/socket.io.js", {
     extraHeaders: {
@@ -6,12 +9,14 @@ export const connectToServer = (token: string) => {
     },
   });
 
-  const socket = manager.socket("/");
+  // This removes the old listeners when we are overwriting and creating a new one.
+  if (socket) socket.removeAllListeners();
+  socket = manager.socket("/");
 
-  addListener(socket);
+  addListeners();
 };
 
-const addListener = (socket: Socket) => {
+const addListeners = () => {
   const serverStatusLabel = document.querySelector("#server-status")!; // the '!' sign means that we are assure that the component will exists
   const clientsUl = document.querySelector("#clients-ul")!;
   const messageForm = document.querySelector<HTMLFormElement>("#message-form")!;
@@ -37,7 +42,7 @@ const addListener = (socket: Socket) => {
     clientsUl.innerHTML = clientsHTML;
   });
 
-  messageForm?.addEventListener("submit", (event) => {
+  messageForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
     if (messageInput.value.trim().length <= 0) return;
@@ -46,6 +51,9 @@ const addListener = (socket: Socket) => {
       id: "Me!!!!",
       message: messageInput.value,
     });
+
+    //! Remember to clean this, otherwise it could give you errors or multiple submits when you disconnect (refresh) your connection.
+    messageInput.value = "";
   });
 
   socket.on(
