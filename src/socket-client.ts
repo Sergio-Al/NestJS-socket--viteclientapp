@@ -9,14 +9,23 @@ export const connectToServer = () => {
 
 const addListener = (socket: Socket) => {
   const serverStatusLabel = document.querySelector("#server-status")!; // the '!' sign means that we are assure that the component will exists
+  const clientsUl = document.querySelector("#clients-ul")!;
 
   socket.on("connect", () => {
-    console.log("connected...");
     serverStatusLabel.innerHTML = "connected";
   });
 
   socket.on("disconnect", () => {
-    console.log("disconnected...");
     serverStatusLabel.innerHTML = "disconnected";
+  });
+
+  socket.on("clients-updated", (clients: string[]) => {
+    let clientsHTML = "";
+
+    clients.forEach((clientId) => {
+      clientsHTML += `<li>${clientId}</li>`;
+    });
+
+    clientsUl.innerHTML = clientsHTML;
   });
 };
