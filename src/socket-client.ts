@@ -11,6 +11,10 @@ const addListener = (socket: Socket) => {
   const serverStatusLabel = document.querySelector("#server-status")!; // the '!' sign means that we are assure that the component will exists
   const clientsUl = document.querySelector("#clients-ul")!;
 
+  const messageForm = document.querySelector<HTMLFormElement>("#message-form")!;
+  const messageInput =
+    document.querySelector<HTMLInputElement>("#message-input")!;
+
   socket.on("connect", () => {
     serverStatusLabel.innerHTML = "connected";
   });
@@ -27,5 +31,16 @@ const addListener = (socket: Socket) => {
     });
 
     clientsUl.innerHTML = clientsHTML;
+  });
+
+  messageForm?.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    if (messageInput.value.trim().length <= 0) return;
+
+    socket.emit("message-from-client", {
+      id: "Me!!!!",
+      message: messageInput.value,
+    });
   });
 };
